@@ -2,21 +2,30 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
 import { useDispatch,useSelector } from 'react-redux'
-import { getServices } from '../components/store/serviceSlice';
+import { getServices, setSearchTerm } from '../components/store/serviceSlice';
+import Spinner from '../components/tools/Spinner';
 const Services = () => {
     const activePage = 1;
     const dispatch = useDispatch();
-    const { data:services } = useSelector(state => state.services)
-    console.log(services)
+    const { data:services, loading ,error, message, searchTerm } = useSelector(state => state.services)
+    const handleSearch = (e) => {
+        dispatch(setSearchTerm(e.target.value.toLowerCase()))
+    }
     const handlePageClick = (event) => {
         const activePage = event.selected + 1;
        dispatch(getServices({activePage}))
-        console.log(event.selected + 1)
     }
     useEffect(() => {
         dispatch(getServices({activePage}))
-    }, [dispatch])
-
+        if(error){
+            console.log(message)
+        }
+    }, [dispatch,error,message])
+    //Search Services
+    let data = null;
+    if(services.service_list !==undefined){
+         data = services.service_list.filter((item)=>item.title.toLowerCase().includes(searchTerm))
+    }
     return (
         <>
             <div className="pagetitle">
@@ -32,11 +41,14 @@ const Services = () => {
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card">
-                            <div className="card-header justify-content-between">
-                                <div></div>
-                                <div></div>
+                            <div className="card-header justify-content-between d-flex">
+                                <div><Link className='btn btn-success' to="/service/create">Create Service</Link></div>
+                                <div><input name='search'value={searchTerm} onChange={handleSearch} id='search' type="text" className='form-control w-75' /></div>
                             </div>
-                            <table className='table table-striped'>
+                            {loading ? (
+                               <div className='text-center'><Spinner /></div>
+                            ):(
+                                <table className='table table-striped'>
                                 <thead>
                                     <tr>
                                         <th>SL No</th>
@@ -47,7 +59,7 @@ const Services = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {services.service_list && services.service_list.map((service) => (
+                                    {data && data.map((service) => (
                                         <tr key={service.service_id}>
                                             <td>{service.service_id}</td>
                                             <td>{service.title}</td>
@@ -60,6 +72,7 @@ const Services = () => {
                                     ))}
                                 </tbody>
                             </table>
+                            )}
                             {
                                 services.pagination &&
                                 <nav className='mx-5'>

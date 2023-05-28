@@ -9,6 +9,7 @@ import GuestLayout from "./components/layouts/GuestLayout";
 import UserCreateForm from "./views/UserCreateForm";
 import UserEditForm from "./views/UserEditForm";
 import Services from "./views/Services";
+import ServiceCreateForm from "./views/ServiceCreateForm";
 const router = createBrowserRouter([
     {
         path: '/',
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
             {
                 path: '/services',
                 element: <Services />
+            },
+            {
+                path: '/service/create',
+                element: <ServiceCreateForm />
             },
         ]
     },
