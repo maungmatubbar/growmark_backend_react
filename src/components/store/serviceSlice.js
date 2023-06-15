@@ -31,16 +31,41 @@ const serviceSlice = createSlice({
             state.error =  true
             state.message = action.payload
         })
+        .addCase(storeService.fulfilled,(state,action)=>{
+            state.loading = false
+            state.message = action.payload
+        })
+
     }
 
 });
 
 export const { setSearchTerm } =serviceSlice.actions;
 export default serviceSlice.reducer;
+
+
 export const getServices = createAsyncThunk('services/get',async ({activePage},thunkAPI) => {
     try {
         const res = await axiosClient.get('/services/?page='+activePage)
         .then(({data}) =>  data.data);
+        return res;
+    } catch (err) {
+        const message = (err.response && err.response.data) || err.message;
+        return thunkAPI.rejectWithValue(message);
+    }
+})
+
+export const storeService = createAsyncThunk('services/store',async (data,thunkAPI) => {
+    try {
+        let message;
+        const res = await axiosClient.post('/services',data,{
+            headers: {
+                "Content-Type": "multipart/form-data",
+            }
+        })
+        .then(({data}) => {
+            message = data.message;
+        });
         return res;
     } catch (err) {
         const message = (err.response && err.response.data) || err.message;
